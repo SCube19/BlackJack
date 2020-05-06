@@ -2,8 +2,8 @@ package blackjack;
 
 public class Card
 {
-    private int number;
-    private Color color;
+    private final int number;
+    private final Color color;
     private int value;
 
     public Card(int number, Color color)
@@ -28,7 +28,7 @@ public class Card
     }
     public String toString()
     {
-        String str = new String();
+        String str = "";
         if(number == 1)
             str += "A";
         else if(number == 11)
@@ -43,4 +43,5 @@ public class Card
 
         return str;
     }
+
 }

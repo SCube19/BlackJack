@@ -3,7 +3,7 @@ import java.util.ArrayList;
 
 public class Deck
 {
-    private ArrayList<Card> cards;
+    private final ArrayList<Card> cards;
 
     public Deck(int numberOfDecks)
     {
@@ -21,7 +21,7 @@ public class Deck
 
     public String toString()
     {
-        String str = new String();
+        String str = "";
         for(Card x: cards)
             str += (x.toString() + " ");
 

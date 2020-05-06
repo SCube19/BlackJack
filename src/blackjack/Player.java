@@ -5,7 +5,7 @@ import java.util.Scanner;
 public class Player
 {
     private int money;
-    private ArrayList<Card> hand;
+    private final ArrayList<Card> hand;
     private int score;
 
     public Player(int money)
@@ -20,17 +20,10 @@ public class Player
         Card tmp = dealer.giveTop();
         hand.add(tmp);
 
-        score += tmp.getValue();
-        if(score > 21)
-        {
-            for(Card x: hand)
-                if(x.getValue() == 11)
-                {
-                    score -= 10;
-                    if(score <= 21)
-                        return;
-                }
-        }
+        if(tmp.getValue() == 11 && score + tmp.getValue() > 21)
+             score += 1;
+        else
+            score += tmp.getValue();
     }
 
     public int giveBet()
@@ -38,11 +31,16 @@ public class Player
         Scanner scanner = new Scanner(System.in);
 
         int bet = money + 1;
-        while(bet >= money)
+        while(bet > money)
             bet = scanner.nextInt();
 
         money -= bet;
+        return bet;
+    }
 
+    public int giveBet(int bet)
+    {
+        money -= bet;
         return bet;
     }
 
@@ -65,4 +63,10 @@ public class Player
     {
         this.money += money;
     }
+
+    public boolean canSplit()
+    {
+        return (hand.size() == 2 && hand.get(0).getValue() == hand.get(1).getValue());
+    }
+
 }

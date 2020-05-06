@@ -5,8 +5,8 @@ import java.util.Random;
 public class Dealer
 {
     private Deck deck;
-    private ArrayList<Card> hand;
-    private int difficulty;
+    private final ArrayList<Card> hand;
+    private final int difficulty;
     private int score;
 
     public Dealer(int difficulty)
@@ -77,9 +77,4 @@ public class Dealer
         }
     }
 
-    public void putCards()
-    {
-        while(score < 17)
-            requestCard();
-    }
 }
