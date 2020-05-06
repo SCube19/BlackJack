@@ -5,25 +5,31 @@ import java.util.Scanner;
 public class Player
 {
     private int money;
-    private final ArrayList<Card> hand;
-    private int score;
+    private Hand hand;
+    private Hand hand_split;
 
     public Player(int money)
     {
         this.money = money;
-        hand = new ArrayList<Card>();
-        score = 0;
+        hand = new Hand();
+        hand_split = new Hand();
     }
 
-    public void requestCard(Dealer dealer)
+    public void requestCard(Dealer dealer, int i)
     {
-        Card tmp = dealer.giveTop();
-        hand.add(tmp);
-
-        if(tmp.getValue() == 11 && score + tmp.getValue() > 21)
-             score += 1;
+        Hand tmpHand;
+        if(i == 1)
+            tmpHand = hand;
         else
-            score += tmp.getValue();
+            tmpHand = hand_split;
+
+        Card tmp = dealer.giveTop();
+        tmpHand.getHand().add(tmp);
+
+        if(tmp.getValue() == 11 && tmpHand.getScore() + tmp.getValue() > 21)
+             tmpHand.addScore(1);
+        else
+             tmpHand.addScore(tmp.getValue());
     }
 
     public int giveBet()
@@ -44,14 +50,9 @@ public class Player
         return bet;
     }
 
-    public ArrayList<Card> getHand()
+    public Hand getHand(int which)
     {
         return hand;
-    }
-
-    public int getScore()
-    {
-        return score;
     }
 
     public int getMoney()
@@ -66,7 +67,19 @@ public class Player
 
     public boolean canSplit()
     {
-        return (hand.size() == 2 && hand.get(0).getValue() == hand.get(1).getValue());
+        return (hand.getHand().size() == 2 && hand.getHand().get(0).getValue() == hand.getHand().get(1).getValue());
     }
 
+    public int getScore(int which)
+    {
+        if(which == 1)
+            return hand.getScore();
+        return hand_split.getScore();
+    }
+
+    public void split()
+    {
+        hand_split.getHand().add(hand.getHand().get(1));
+        hand.getHand().remove(1);
+    }
 }

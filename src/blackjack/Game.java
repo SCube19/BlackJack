@@ -1,6 +1,7 @@
 package blackjack;
-import java.awt.*;
+
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Game
@@ -8,6 +9,7 @@ public class Game
     private final Dealer dealer;
     private final Player player;
     private int bet;
+    private boolean split;
 
     public Game(int difficulty, int startMoney)
     {
@@ -17,97 +19,112 @@ public class Game
 
     public void start() throws IOException, InterruptedException
     {
-        turn();
-    }
-    private void turn() throws IOException, InterruptedException
-    {
-        bet = player.giveBet();
-        deal();
-        printState(true);
+       while(true)
+       {
+           clear();
+           if (player.getMoney() == 0)
+           {
+               System.out.println("YOU HAVE NO MONEY, THE HOUSE WON! :c");
+               Runtime.getRuntime().exit(0);
+           }
 
-        float multiplier = 2.0f;
+           System.out.print("Money: " + player.getMoney() + "\nPlace bet: ");
+           bet = player.giveBet();
+           deal();
+           printState(true);
 
-        if (player.getScore() == 21)
-            multiplier = 2.5f;
-        else
-        {
-            Scanner scanner = new Scanner(System.in);
-            int decision = 0;
-            boolean valid = true;
+           split = false;
+           float multiplier = 2.0f;
 
-            while(player.getScore() < 21)
-            {
-                decision = 0;
-                if(valid)
-                    System.out.println("\n1.STAND  2.HIT  3.DOUBLE  4.SPLIT");
+           if (player.getScore(1) == 21)
+               multiplier = 2.5f;
+           else
+           {
+               Scanner scanner = new Scanner(System.in);
+               int decision = 0;
+               boolean valid = true;
 
-                decision = scanner.nextInt();
-                valid = false;
+               while (player.getScore(1) < 21)
+               {
+                   decision = 0;
+                   if (valid)
+                       System.out.println("\n1.STAND  2.HIT  3.DOUBLE  4.SPLIT  5.EXIT");
 
-                if(decision == 1)
-                    break;
-                if(decision == 2)
-                {
-                    hit();
-                    valid = true;
-                }
-                if(decision == 3 && player.getMoney() >= bet && player.getHand().size() == 2)
-                {
-                   _double();
-                    break;
-                }
-                if(decision == 4 && player.getHand().size() == 2 && player.canSplit())
-                {
-                    
-                }
-            }
-        }
+                   decision = scanner.nextInt();
+                   valid = false;
 
-        if(player.getScore() > 21)
-            System.out.println("\nPLAYER BUST!");
-        else
-        {
-            printState(false);
-            while (dealer.getScore() < 17)
-            {
-                Thread.sleep(2000);
-                dealer.requestCard();
-                printState(false);
+                   if (decision == 1)
+                       break;
+                   if (decision == 2)
+                   {
+                       hit(1);
+                       valid = true;
+                   }
+                   if (decision == 3 && player.getMoney() >= bet && player.getHand(1).getHand().size() == 2)
+                   {
+                       _double();
+                       break;
+                   }
+                   if (decision == 4 && player.getMoney() >= bet && player.getHand(1).getHand().size() == 2 && player.canSplit())
+                   {
+                       split = true;
+                       player.split();
+                       bet += player.giveBet(bet);
 
-            }
+                       simpleDecision(1);
+                       simpleDecision(2);
+                       break;
+                   }
+                   if (decision == 5)
+                       Runtime.getRuntime().exit(0);
+               }
+           }
 
-            if (dealer.getScore() == player.getScore())
-            {
-                multiplier = 1;
-                System.out.println("\nPUSH!\n\nYOU GET BACK " + (int) (bet * multiplier) + " COINS!");
-            }
-            else if (dealer.getScore() > 21)
-            {
-                System.out.println("\nDEALER BUST!");
-                System.out.println("\n\nYOU WIN " + (int) (bet * multiplier) + " COINS!");
-            }
-            else if (dealer.getScore() > player.getScore())
-            {
-                multiplier = 0;
-                System.out.println("\nDEALER WINS!\n\nYOU LOSE " + bet + " COINS!");
-            }
-            else
-                System.out.println("\n\nYOU WIN " + (int) (bet * multiplier) + " COINS!");
+           if (player.getScore(1) > 21)
+               System.out.println("\nPLAYER BUST!");
+           else
+           {
+               printState(false);
+               while (dealer.getScore() < 17)
+               {
+                   Thread.sleep(2000);
+                   dealer.requestCard();
+                   printState(false);
 
-            player.addMoney((int) (bet * multiplier));
-        }
+               }
 
+               if (dealer.getScore() == player.getScore(1))
+               {
+                   multiplier = 1;
+                   System.out.println("\nPUSH!\n\nYOU GET BACK " + (int) (bet * multiplier) + " COINS!");
+               }
+               else if (dealer.getScore() > 21)
+               {
+                   System.out.println("\nDEALER BUST!");
+                   System.out.println("\n\nYOU WIN " + (int) (bet * multiplier) + " COINS!");
+               }
+               else if (dealer.getScore() > player.getScore(1))
+               {
+                   multiplier = 0;
+                   System.out.println("\nDEALER WINS!\n\nYOU LOSE " + bet + " COINS!");
+               }
+               else
+                   System.out.println("\n\nYOU WIN " + (int) (bet * multiplier) + " COINS!");
+
+               player.addMoney((int) (bet * multiplier));
+           }
+       }
     }
 
     private void deal()
     {
-        player.requestCard(dealer);
+        player.requestCard(dealer, 1);
         dealer.requestCard();
-        player.requestCard(dealer);
+        player.requestCard(dealer, 1);
         dealer.requestCard();
     }
 
-    public String toString(boolean hide)
+    private String toString(boolean hide)
     {
         String str = new String();
         for(int i = 0; i < dealer.getHand().size(); i++)
@@ -125,10 +142,18 @@ public class Game
         str += "  " + bet;
         str += "\n\n";
 
-        for(Card x: player.getHand())
-            str += x.toString() + " ";
 
-        str += " " + player.getScore();
+        for(Card x: player.getHand(1).getHand())
+            str += x.toString() + " ";
+        str += " " + player.getScore(1);
+
+        if(split)
+        {
+            str += " ||| ";
+            for (Card x : player.getHand(2).getHand())
+                str += x.toString() + " ";
+            str += " " + player.getScore(2);
+        }
         str += "\n  " + player.getMoney();
 
         return str;
@@ -145,16 +170,43 @@ public class Game
     {
         new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
     }
-
-    private void hit() throws IOException, InterruptedException
+    private void hit(int i) throws IOException, InterruptedException
     {
-        player.requestCard(dealer);
+        player.requestCard(dealer, i);
         printState(true);
     }
     private void _double() throws IOException, InterruptedException
     {
         bet += player.giveBet(bet);
-        player.requestCard(dealer);
+        player.requestCard(dealer, 1);
         printState(true);
+    }
+    private boolean simpleDecision(int handNum) throws IOException, InterruptedException
+    {
+        Scanner scanner = new Scanner(System.in);
+        int decision = 0;
+        boolean valid = true;
+
+        while(player.getHand(handNum).getScore() < 21)
+        {
+            decision = 0;
+            if(valid)
+                System.out.println("\n1.STAND  2.HIT  3.EXIT");
+
+            decision = scanner.nextInt();
+            valid = false;
+
+            if(decision == 1)
+                return true;
+            if(decision == 2)
+            {
+                hit(handNum);
+                valid = true;
+            }
+            if(decision == 3)
+                Runtime.getRuntime().exit(0);
+        }
+
+        return false;
     }
 }
