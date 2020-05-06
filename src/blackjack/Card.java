@@ -14,6 +14,8 @@ public class Card
 
         if(number > 10)
             value = 10;
+        else if(number == 1)
+            value = 11;
     }
 
     public int getValue()

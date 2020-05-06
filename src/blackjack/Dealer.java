@@ -16,6 +16,7 @@ public class Dealer
 
         hand = new ArrayList<Card>();
         this.difficulty = difficulty;
+        score = 0;
     }
 
     public void shuffle()
@@ -60,6 +61,25 @@ public class Dealer
 
     public void requestCard()
     {
-        hand.add(giveTop());
+        Card tmp = giveTop();
+        hand.add(tmp);
+
+        score += tmp.getValue();
+        if(score > 21)
+        {
+            for(Card x: hand)
+                if(x.getValue() == 11)
+                {
+                    score -= 10;
+                    if(score <= 21)
+                        return;
+                }
+        }
+    }
+
+    public void putCards()
+    {
+        while(score < 17)
+            requestCard();
     }
 }

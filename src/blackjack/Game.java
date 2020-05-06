@@ -15,12 +15,39 @@ public class Game
     public void start()
     {
         turn();
-        printState(true);
     }
-    private void turn()
-    {
+    private void turn() {
         bet = player.giveBet();
         deal();
+        printState(true);
+
+        float multiplier = 2.0f;
+        if (player.getScore() == 21)
+            multiplier = 2.5f;
+        else
+        {
+
+        }
+        dealer.putCards();
+        printState(false);
+
+        if (dealer.getScore() == player.getScore())
+        {
+            multiplier = 1;
+            System.out.println("\nPUSH!");
+        }
+        else if (dealer.getScore() > 21)
+            System.out.println("\nDEALER BUST!");
+        else if(dealer.getScore() > player.getScore())
+        {
+            multiplier = 0;
+            System.out.println("\nDEALER WINS!");
+        }
+
+
+        System.out.println("\n\nYOU WIN " + (int)(bet*multiplier) + " COINS!");
+        player.addMoney((int)(bet * multiplier));
+
     }
 
     private void deal()
@@ -36,12 +63,14 @@ public class Game
         String str = new String();
         for(int i = 0; i < dealer.getHand().size(); i++)
             if(hide && i > 0)
-                str += "HIDDEN ";
+                break;
             else
                 str += dealer.getHand().get(i).toString() + " ";
 
         if(!hide)
             str += " " + dealer.getScore();
+        else
+            str += "HIDDEN ";
 
         str += "\n\n";
         str += "  " + bet;
@@ -58,6 +87,12 @@ public class Game
 
     private void printState(boolean hide)
     {
+        clear();
         System.out.println(this.toString(hide));
+    }
+
+    private void clear()
+    {
+        System.out.print("\033[H\033[2J");
     }
 }

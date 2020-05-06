@@ -17,13 +17,26 @@ public class Player
 
     public void requestCard(Dealer dealer)
     {
-        hand.add(dealer.giveTop());
+        Card tmp = dealer.giveTop();
+        hand.add(tmp);
+
+        score += tmp.getValue();
+        if(score > 21)
+        {
+            for(Card x: hand)
+                if(x.getValue() == 11)
+                {
+                    score -= 10;
+                    if(score <= 21)
+                        return;
+                }
+        }
     }
 
     public int giveBet()
     {
         Scanner scanner = new Scanner(System.in);
-        
+
         int bet = money + 1;
         while(bet >= money)
             bet = scanner.nextInt();
@@ -46,5 +59,10 @@ public class Player
     public int getMoney()
     {
         return money;
+    }
+
+    public void addMoney(int money)
+    {
+        this.money += money;
     }
 }
