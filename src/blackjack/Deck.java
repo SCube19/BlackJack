@@ -23,7 +23,7 @@ public class Deck
     {
         String str = new String();
         for(Card x: cards)
-            str += (x.getValue() + "|" + x.getColor().literal() + " ");
+            str += (x.toString() + " ");
 
         return str;
     }

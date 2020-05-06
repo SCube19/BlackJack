@@ -1,12 +1,12 @@
 package blackjack;
 
-public class Main {
+public class Main
+{
+    public static void main(String[] args)
+    {
+	    Game game = new Game(1, 1000);
 
-    public static void main(String[] args) {
-	    Dealer dealer = new Dealer(1);
+	    game.start();
 
-	    dealer.shuffle();
-
-	    System.out.println(dealer.getDeck().toString());
     }
 }
