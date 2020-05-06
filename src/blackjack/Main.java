@@ -3,6 +3,10 @@ package blackjack;
 public class Main {
 
     public static void main(String[] args) {
-	// write your code here
+	    Dealer dealer = new Dealer(1);
+
+	    dealer.shuffle();
+
+	    System.out.println(dealer.getDeck().toString());
     }
 }
