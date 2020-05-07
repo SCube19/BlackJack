@@ -200,6 +200,7 @@ public class Game
             str += "                ";
         }
 
+        if(player.getHand(handNum).getHand().get(0).getValue() != 11)
         while(player.getHand(handNum).getScore() < 21)
         {
 
