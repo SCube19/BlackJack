@@ -1,7 +1,6 @@
 package blackjack;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Game
@@ -46,7 +45,6 @@ public class Game
 
                while (player.getScore(1) < 21)
                {
-                   decision = 0;
                    if (valid)
                        System.out.println("\n1.STAND  2.HIT  3.DOUBLE  4.SPLIT  5.EXIT");
 
@@ -69,10 +67,14 @@ public class Game
                    {
                        split = true;
                        player.split();
+                       int original_bet = bet;
                        bet += player.giveBet(bet);
 
-                       simpleDecision(1);
-                       simpleDecision(2);
+                      if(!simpleDecision(1))
+                          bet -= original_bet;
+                      if(!simpleDecision(2));
+                          bet -= original_bet;
+
                        break;
                    }
                    if (decision == 5)
@@ -80,20 +82,18 @@ public class Game
                }
            }
 
-           if (player.getScore(1) > 21)
+           if (player.getScore(1) > 21 && (player.getScore(2) > 21 || player.getScore(2) == 0))
+           {
                System.out.println("\nPLAYER BUST!");
+               Thread.sleep(2000);
+           }
            else
            {
-               printState(false);
-               while (dealer.getScore() < 17)
-               {
-                   Thread.sleep(2000);
-                   dealer.requestCard();
-                   printState(false);
+              dealerDraw();
 
-               }
+              int biggerScore = chooseBigger();
 
-               if (dealer.getScore() == player.getScore(1))
+               if (dealer.getScore() == biggerScore)
                {
                    multiplier = 1;
                    System.out.println("\nPUSH!\n\nYOU GET BACK " + (int) (bet * multiplier) + " COINS!");
@@ -103,7 +103,7 @@ public class Game
                    System.out.println("\nDEALER BUST!");
                    System.out.println("\n\nYOU WIN " + (int) (bet * multiplier) + " COINS!");
                }
-               else if (dealer.getScore() > player.getScore(1))
+               else if (dealer.getScore() > biggerScore)
                {
                    multiplier = 0;
                    System.out.println("\nDEALER WINS!\n\nYOU LOSE " + bet + " COINS!");
@@ -112,7 +112,10 @@ public class Game
                    System.out.println("\n\nYOU WIN " + (int) (bet * multiplier) + " COINS!");
 
                player.addMoney((int) (bet * multiplier));
+               Thread.sleep(2000);
            }
+           player.giveUpCards();
+           dealer.giveUpCards();
        }
     }
 
@@ -127,14 +130,14 @@ public class Game
     private String toString(boolean hide)
     {
         String str = new String();
-        for(int i = 0; i < dealer.getHand().size(); i++)
+        for(int i = 0; i < dealer.getHand().getHand().size(); i++)
             if(hide && i > 0)
                 break;
             else
-                str += dealer.getHand().get(i).toString() + " ";
+                str += dealer.getHand().getHand().get(i).toString() + " ";
 
         if(!hide)
-            str += " " + dealer.getScore();
+            str += (" (SCORE: " + dealer.getScore() + ")");
         else
             str += "HIDDEN ";
 
@@ -145,23 +148,23 @@ public class Game
 
         for(Card x: player.getHand(1).getHand())
             str += x.toString() + " ";
-        str += " " + player.getScore(1);
+        str += (" (SCORE: " + player.getScore(1) + ")");
 
         if(split)
         {
             str += " ||| ";
             for (Card x : player.getHand(2).getHand())
                 str += x.toString() + " ";
-            str += " " + player.getScore(2);
+            str += (" (SCORE: " + player.getScore(2) + ")");
         }
-        str += "\n  " + player.getMoney();
+        str += (" || MONEY: " + player.getMoney());
 
         return str;
     }
 
     private void printState(boolean hide) throws IOException, InterruptedException
     {
-        System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n");
+
         clear();
         System.out.println(this.toString(hide));
     }
@@ -187,11 +190,24 @@ public class Game
         int decision = 0;
         boolean valid = true;
 
+        player.requestCard(dealer, handNum);
+        printState(true);
+        String str = new String();
+        if(handNum == 2)
+        {
+            for (Card x : player.getHand(1).getHand())
+                str += "    ";
+            str += "                ";
+        }
+
         while(player.getHand(handNum).getScore() < 21)
         {
-            decision = 0;
+
             if(valid)
+            {
+                System.out.println(str + "^");
                 System.out.println("\n1.STAND  2.HIT  3.EXIT");
+            }
 
             decision = scanner.nextInt();
             valid = false;
@@ -207,6 +223,30 @@ public class Game
                 Runtime.getRuntime().exit(0);
         }
 
+        if(player.getHand(handNum).getScore() == 21)
+            return true;
         return false;
+    }
+
+    private void dealerDraw() throws IOException, InterruptedException
+    {
+        printState(false);
+        while (dealer.getScore() < 17)
+        {
+            Thread.sleep(2000);
+            dealer.requestCard();
+            printState(false);
+
+        }
+    }
+
+    private int chooseBigger()
+    {
+        if(player.getScore(1) > 21)
+            return player.getScore(2);
+        else if(player.getScore(2) > 21)
+            return player.getScore(1);
+        return Math.max(player.getScore(1), player.getScore(2));
+
     }
 }

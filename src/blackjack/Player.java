@@ -23,14 +23,9 @@ public class Player
         else
             tmpHand = hand_split;
 
-        Card tmp = dealer.giveTop();
-        tmpHand.getHand().add(tmp);
-
-        if(tmp.getValue() == 11 && tmpHand.getScore() + tmp.getValue() > 21)
-             tmpHand.addScore(1);
-        else
-             tmpHand.addScore(tmp.getValue());
+        tmpHand.addCard(dealer.giveTop());
     }
+
 
     public int giveBet()
     {
@@ -52,7 +47,9 @@ public class Player
 
     public Hand getHand(int which)
     {
-        return hand;
+        if(which == 1)
+            return hand;
+        return hand_split;
     }
 
     public int getMoney()
@@ -79,7 +76,13 @@ public class Player
 
     public void split()
     {
-        hand_split.getHand().add(hand.getHand().get(1));
-        hand.getHand().remove(1);
+        hand_split.addCard(hand.getHand().get(1));
+        hand.removeCard();
+    }
+
+    public void giveUpCards()
+    {
+        hand = new Hand();
+        hand_split = new Hand();
     }
 }

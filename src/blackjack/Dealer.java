@@ -5,18 +5,16 @@ import java.util.Random;
 public class Dealer
 {
     private Deck deck;
-    private final ArrayList<Card> hand;
-    private final int difficulty;
-    private int score;
+    private Hand hand;
+    private int difficulty;
 
     public Dealer(int difficulty)
     {
         deck = new Deck(difficulty);
         shuffle();
 
-        hand = new ArrayList<Card>();
+        hand = new Hand();
         this.difficulty = difficulty;
-        score = 0;
     }
 
     public void shuffle()
@@ -33,17 +31,17 @@ public class Dealer
         }
     }
 
-    public int getScore()
-    {
-        return score;
-    }
-
     public Deck getDeck()
     {
         return deck;
     }
 
-    public ArrayList<Card> getHand()
+    public int getScore()
+    {
+        return hand.getScore();
+    }
+
+    public Hand getHand()
     {
         return hand;
     }
@@ -61,20 +59,12 @@ public class Dealer
 
     public void requestCard()
     {
-        Card tmp = giveTop();
-        hand.add(tmp);
+        hand.addCard(giveTop());
+    }
 
-        score += tmp.getValue();
-        if(score > 21)
-        {
-            for(Card x: hand)
-                if(x.getValue() == 11)
-                {
-                    score -= 10;
-                    if(score <= 21)
-                        return;
-                }
-        }
+    public void giveUpCards()
+    {
+        hand = new Hand();
     }
 
 }
