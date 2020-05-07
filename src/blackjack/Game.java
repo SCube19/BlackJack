@@ -36,7 +36,11 @@ public class Game
            float multiplier = 2.0f;
 
            if (player.getScore(1) == 21)
+           {
                multiplier = 2.5f;
+               System.out.println("BLACKJACK!");
+               Thread.sleep(1200);
+           }
            else
            {
                Scanner scanner = new Scanner(System.in);
@@ -46,7 +50,8 @@ public class Game
                while (player.getScore(1) < 21)
                {
                    if (valid)
-                       System.out.println("\n1.STAND  2.HIT  3.DOUBLE  4.SPLIT  5.EXIT");
+                       System.out.println("\u001B[34m" + "\n1.STAND" + "\u001B[31m" + "  2.HIT" + "\u001B[32m" + "   3.DOUBLE" + "\u001B[35m" + "  4.SPLIT" +
+                               "\u001B[37m" + "  5.EXIT");
 
                    decision = scanner.nextInt();
                    valid = false;
@@ -72,7 +77,7 @@ public class Game
 
                       if(!simpleDecision(1))
                           bet -= original_bet;
-                      if(!simpleDecision(2));
+                      if(!simpleDecision(2))
                           bet -= original_bet;
 
                        break;
@@ -85,7 +90,6 @@ public class Game
            if (player.getScore(1) > 21 && (player.getScore(2) > 21 || player.getScore(2) == 0))
            {
                System.out.println("\nPLAYER BUST!");
-               Thread.sleep(2000);
            }
            else
            {
@@ -112,10 +116,11 @@ public class Game
                    System.out.println("\n\nYOU WIN " + (int) (bet * multiplier) + " COINS!");
 
                player.addMoney((int) (bet * multiplier));
-               Thread.sleep(2000);
            }
+           Thread.sleep(2000);
            player.giveUpCards();
            dealer.giveUpCards();
+           split = false;
        }
     }
 
@@ -129,6 +134,10 @@ public class Game
 
     private String toString(boolean hide)
     {
+        String reset = "\u001B[0m";
+        String green = "\u001B[32m";
+        String yellow = "\u001B[33m";
+
         String str = new String();
         for(int i = 0; i < dealer.getHand().getHand().size(); i++)
             if(hide && i > 0)
@@ -137,40 +146,40 @@ public class Game
                 str += dealer.getHand().getHand().get(i).toString() + " ";
 
         if(!hide)
-            str += (" (SCORE: " + dealer.getScore() + ")");
+            str += (yellow + " (SCORE: " + dealer.getScore() + ")" + reset);
         else
-            str += "HIDDEN ";
+            str += "\u001B[36m" + "HIDDEN " + reset;
 
         str += "\n\n";
-        str += "  " + bet;
+        str += "  " + "\u001B[32m" + bet;
         str += "\n\n";
 
 
         for(Card x: player.getHand(1).getHand())
             str += x.toString() + " ";
-        str += (" (SCORE: " + player.getScore(1) + ")");
+        str += (yellow + " (SCORE: " + player.getScore(1) + ")" + reset);
 
         if(split)
         {
             str += " ||| ";
             for (Card x : player.getHand(2).getHand())
                 str += x.toString() + " ";
-            str += (" (SCORE: " + player.getScore(2) + ")");
+            str += (yellow + " (SCORE: " + player.getScore(2) + ")" + reset);
         }
-        str += (" || MONEY: " + player.getMoney());
+        str += (" ||" + green + " MONEY: " + player.getMoney() + reset);
 
         return str;
     }
 
     private void printState(boolean hide) throws IOException, InterruptedException
     {
-
         clear();
         System.out.println(this.toString(hide));
     }
 
     private void clear() throws IOException, InterruptedException
     {
+        System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
         new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
     }
     private void hit(int i) throws IOException, InterruptedException
@@ -197,7 +206,7 @@ public class Game
         {
             for (Card x : player.getHand(1).getHand())
                 str += "    ";
-            str += "                ";
+            str += "                   ";
         }
 
         if(player.getHand(handNum).getHand().get(0).getValue() != 11)
@@ -207,7 +216,7 @@ public class Game
             if(valid)
             {
                 System.out.println(str + "^");
-                System.out.println("\n1.STAND  2.HIT  3.EXIT");
+                System.out.println("\u001B[34m" + "\n1.STAND" + "\u001B[31m" + "  2.HIT" + "\u001B[32m" + "   3.DOUBLE" + "\u001B[0m");
             }
 
             decision = scanner.nextInt();
@@ -232,12 +241,12 @@ public class Game
     private void dealerDraw() throws IOException, InterruptedException
     {
         printState(false);
+        Thread.sleep(2000);
         while (dealer.getScore() < 17)
         {
-            Thread.sleep(2000);
             dealer.requestCard();
             printState(false);
-
+            Thread.sleep(2000);
         }
     }
 

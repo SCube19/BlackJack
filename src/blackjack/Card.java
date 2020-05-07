@@ -28,7 +28,7 @@ public class Card
     }
     public String toString()
     {
-        String str = "";
+        String str = color.colorize();
         if(number == 1)
             str += "A";
         else if(number == 11)
@@ -40,6 +40,7 @@ public class Card
         else
             str += number;
         str += "|" + color.literal();
+        str += "\u001B[0m";
 
         return str;
     }
